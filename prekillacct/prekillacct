@@ -1,0 +1,58 @@
+#!/usr/bin/bash
+
+DESTINATIEDELOG="/var/log/prekillacc"
+LOG="$DESTINATIEDELOG/prekillacct.log"
+DESTINATIE="/backup/terminated-accounts/"
+COMANDADECPANEL="/usr/local/cpanel/scripts/pkgacct"
+
+FILETMP=`date +%Y%m%d%H%M%S`
+
+mkdir -p $DESTINATIE $DESTINATIEDELOG
+
+echo "-----------------" >> $LOG
+echo "Pornire -- prekillacct" >> $LOG
+date >> $LOG
+echo "Datele trimise pentru stergere::: $@" >> $LOG
+echo "" >> $LOG
+
+function terminate_account () {
+        chmod +x $COMANDADECPANEL
+
+        # Elimina fisierele de backup-*$user.tar.gz 
+        for user in `/bin/ls -A /var/cpanel/users` ; do rm -fv /home/$user/backup-*$user.tar.gz ; done
+        $COMANDADECPANEL $d $DESTINATIE &>> $LOG
+}
+
+# Obtine lista de conturi pe server
+cat /etc/userdomains | cut -d":" -f2 | uniq  >> $DESTINATIEDELOG/$FILETMP.tmp
+
+# Validare parametrii expediati de cPanel
+for d in $(cat $DESTINATIEDELOG/$FILETMP.tmp); do
+        if [ "$d" = "$1"  ]
+        then
+                 terminate_account
+                break
+        elif [ "$d" = "$2"  ]
+        then
+                 terminate_account
+                break
+        elif [ "$d" = "$3"  ]
+        then
+                 terminate_account
+                 break
+        elif [ "$d" = "$4"  ]
+        then
+                 terminate_account
+                break
+        elif [ "$d" = "$5"  ]
+        then
+                 terminate_account
+                break
+        fi
+done
+
+rm -f $DESTINATIEDELOG/$FILETMP.tmp
+
+echo "" >> $LOG
+echo "Sa finalizat -- prekillacct" >> $LOG
+echo "-----------------" >> $LOG
